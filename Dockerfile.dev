@@ -1,0 +1,24 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Install development tools
+RUN apk add --no-cache git curl
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install all dependencies (including dev)
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Expose any necessary ports
+EXPOSE 3000
+
+# Run in development mode with hot reload
+CMD ["pnpm", "dev"]

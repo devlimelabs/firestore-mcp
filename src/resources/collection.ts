@@ -11,19 +11,16 @@ export function registerCollectionResources(
   server.resource(
     "collection",
     new ResourceTemplate("firestore://collection/{collectionId}", {
-      list: {
-        resourceNameHint: "Collections",
-        description: "List of Firestore collections"
-      }
+      list: undefined
     }),
     async (uri, { collectionId }) => {
       // Check permissions
-      if (!permissionManager.hasPermission(collectionId, 'read')) {
+      if (!permissionManager.hasPermission(collectionId as string, 'read')) {
         throw new Error(`Access denied to collection: ${collectionId}`);
       }
       
       try {
-        const documents = await firestoreClient.getCollection(collectionId);
+        const documents = await firestoreClient.getCollection(collectionId as string);
         
         return {
           contents: [{
@@ -34,7 +31,7 @@ export function registerCollectionResources(
         };
       } catch (error) {
         console.error(`Error reading collection ${collectionId}:`, error);
-        throw new Error(`Failed to read collection ${collectionId}: ${error.message}`);
+        throw new Error(`Failed to read collection ${collectionId}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   );

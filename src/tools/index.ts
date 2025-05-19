@@ -5,6 +5,9 @@ import { registerReadTools } from "./read.js";
 import { registerWriteTools } from "./write.js";
 import { registerDeleteTools } from "./delete.js";
 import { registerQueryTools } from "./query.js";
+import { registerSubcollectionTools } from "./subcollections.js";
+import { registerBatchTools } from "./batch.js";
+import { registerFieldValueTools } from "./field-values.js";
 
 export function registerTools(
   server: McpServer,
@@ -15,4 +18,7 @@ export function registerTools(
   registerWriteTools(server, firestoreClient, permissionManager);
   registerDeleteTools(server, firestoreClient, permissionManager);
   registerQueryTools(server, firestoreClient, permissionManager);
+  registerSubcollectionTools(server, firestoreClient, permissionManager);
+  registerBatchTools(server, firestoreClient, permissionManager);
+  registerFieldValueTools(server, firestoreClient, permissionManager);
 }

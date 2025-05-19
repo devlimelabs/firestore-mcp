@@ -28,11 +28,13 @@ export class FirestoreClient {
 
         this.app = initializeApp({
           credential: cert(serviceAccount),
-          projectId: this.options.projectId || serviceAccount.project_id,
+          projectId: this.options.projectId || serviceAccount.projectId,
         });
       } else {
         // Use default app credentials
-        this.app = initializeApp();
+        this.app = initializeApp({
+          projectId: this.options.projectId
+        });
       }
 
       // Initialize Firestore
@@ -56,12 +58,18 @@ export class FirestoreClient {
     return collections.map((col) => col.id);
   }
 
-  async getCollection(collectionId: string) {
-    const snapshot = await this.firestore.collection(collectionId).get();
+  async getCollection(collectionPath: string) {
+    const snapshot = await this.firestore.collection(collectionPath).get();
     return snapshot.docs.map((doc) => ({
       id: doc.id,
       data: doc.data(),
     }));
+  }
+  
+  async getSubcollections(documentPath: string) {
+    const docRef = this.firestore.doc(documentPath);
+    const collections = await docRef.listCollections();
+    return collections.map((col) => col.id);
   }
 
   async getDocument(collectionId: string, documentId: string) {
@@ -112,14 +120,73 @@ export class FirestoreClient {
     await docRef.delete();
     return { id: documentId };
   }
+  
+  // Subcollection support methods
+  async getDocumentByPath(documentPath: string) {
+    const docRef = this.firestore.doc(documentPath);
+    const doc = await docRef.get();
+    
+    if (!doc.exists) {
+      return null;
+    }
+    
+    return {
+      id: doc.id,
+      data: doc.data(),
+    };
+  }
+  
+  async getCollectionByPath(collectionPath: string) {
+    const snapshot = await this.firestore.collection(collectionPath).get();
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      data: doc.data(),
+    }));
+  }
+  
+  async createDocumentByPath(collectionPath: string, data: any, documentId?: string) {
+    const collectionRef = this.firestore.collection(collectionPath);
+    
+    let docRef;
+    if (documentId) {
+      docRef = collectionRef.doc(documentId);
+      await docRef.set(data);
+    } else {
+      docRef = await collectionRef.add(data);
+    }
+    
+    const newDoc = await docRef.get();
+    return {
+      id: newDoc.id,
+      data: newDoc.data(),
+    };
+  }
+  
+  async updateDocumentByPath(documentPath: string, data: any) {
+    const docRef = this.firestore.doc(documentPath);
+    await docRef.update(data);
+    
+    const updatedDoc = await docRef.get();
+    return {
+      id: updatedDoc.id,
+      data: updatedDoc.data(),
+    };
+  }
+  
+  async deleteDocumentByPath(documentPath: string) {
+    const docRef = this.firestore.doc(documentPath);
+    const id = docRef.id;
+    await docRef.delete();
+    return { id };
+  }
 
   async queryCollection(
     collectionId: string, 
-    filters: Array<{field: string; operator: string; value: any}>, 
+    filters: Array<{field: string; operator: string; value?: any}>, 
     limit?: number,
     orderBy?: {field: string; direction: 'asc' | 'desc'}
   ) {
-    let query = this.firestore.collection(collectionId);
+    let query: any = this.firestore.collection(collectionId);
     
     // Apply filters
     filters.forEach(filter => {
@@ -137,7 +204,37 @@ export class FirestoreClient {
     }
     
     const snapshot = await query.get();
-    return snapshot.docs.map((doc) => ({
+    return snapshot.docs.map((doc: any) => ({
+      id: doc.id,
+      data: doc.data(),
+    }));
+  }
+  
+  async queryCollectionByPath(
+    collectionPath: string, 
+    filters: Array<{field: string; operator: string; value?: any}>, 
+    limit?: number,
+    orderBy?: {field: string; direction: 'asc' | 'desc'}
+  ) {
+    let query: any = this.firestore.collection(collectionPath);
+    
+    // Apply filters
+    filters.forEach(filter => {
+      query = query.where(filter.field, filter.operator as any, filter.value);
+    });
+    
+    // Apply order
+    if (orderBy) {
+      query = query.orderBy(orderBy.field, orderBy.direction);
+    }
+    
+    // Apply limit
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const snapshot = await query.get();
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       data: doc.data(),
     }));

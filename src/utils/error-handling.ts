@@ -20,9 +20,13 @@ export function handleFirestoreError(error: any): FirestoreError {
     message = error.message;
     
     // Extract Firestore error code if available
-    if ('code' in error) {
+    if ('code' in error && typeof error.code === 'string') {
       code = error.code;
     }
+  } else if (typeof error === 'string') {
+    message = error;
+  } else {
+    message = String(error);
   }
   
   return new FirestoreError(message, code);

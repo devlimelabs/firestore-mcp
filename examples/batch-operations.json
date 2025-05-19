@@ -1,0 +1,155 @@
+{
+  "description": "Examples of batch operations and transactions in Firestore MCP",
+  "examples": [
+    {
+      "name": "Batch write example - Create multiple documents",
+      "tool": "firestore-batch-write",
+      "params": {
+        "operations": [
+          {
+            "type": "create",
+            "collectionPath": "products",
+            "documentId": "product1",
+            "data": {
+              "name": "Widget A",
+              "price": 29.99,
+              "stock": 100
+            }
+          },
+          {
+            "type": "create",
+            "collectionPath": "products",
+            "documentId": "product2",
+            "data": {
+              "name": "Widget B",
+              "price": 39.99,
+              "stock": 50
+            }
+          },
+          {
+            "type": "create",
+            "collectionPath": "categories",
+            "documentId": "widgets",
+            "data": {
+              "name": "Widgets",
+              "productCount": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Batch write example - Mixed operations",
+      "tool": "firestore-batch-write",
+      "params": {
+        "operations": [
+          {
+            "type": "update",
+            "documentPath": "products/product1",
+            "data": {
+              "price": 24.99,
+              "onSale": true
+            }
+          },
+          {
+            "type": "delete",
+            "documentPath": "products/oldProduct"
+          },
+          {
+            "type": "create",
+            "collectionPath": "products/product1/reviews",
+            "data": {
+              "rating": 5,
+              "text": "Great product!",
+              "date": "2023-06-15"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Batch read example",
+      "tool": "firestore-batch-read",
+      "params": {
+        "documentPaths": [
+          "products/product1",
+          "products/product2",
+          "categories/widgets",
+          "products/nonexistent"
+        ]
+      }
+    },
+    {
+      "name": "Transaction example - Transfer stock between products",
+      "tool": "firestore-transaction",
+      "params": {
+        "reads": [
+          "products/product1",
+          "products/product2"
+        ],
+        "operations": [
+          {
+            "type": "update",
+            "documentPath": "products/product1",
+            "data": {
+              "stock": 90
+            }
+          },
+          {
+            "type": "update",
+            "documentPath": "products/product2",
+            "data": {
+              "stock": 60
+            }
+          }
+        ],
+        "conditionScript": "return readResults['products/product1'].data.stock >= 10;"
+      }
+    },
+    {
+      "name": "Transaction example - Atomic order creation",
+      "tool": "firestore-transaction",
+      "params": {
+        "reads": [
+          "products/product1",
+          "users/user123/credits"
+        ],
+        "operations": [
+          {
+            "type": "create",
+            "collectionPath": "orders",
+            "data": {
+              "userId": "user123",
+              "productId": "product1",
+              "quantity": 2,
+              "total": 49.98,
+              "status": "pending"
+            }
+          },
+          {
+            "type": "update",
+            "documentPath": "products/product1",
+            "data": {
+              "stock": 98
+            }
+          },
+          {
+            "type": "update",
+            "documentPath": "users/user123/credits",
+            "data": {
+              "balance": 50.02
+            }
+          }
+        ],
+        "conditionScript": "const product = readResults['products/product1'].data; const credits = readResults['users/user123/credits'].data; return product.stock >= 2 && credits.balance >= 49.98;"
+      }
+    }
+  ],
+  "notes": [
+    "Batch writes are atomic - all operations succeed or all fail",
+    "Maximum 500 operations per batch",
+    "Transactions ensure consistency when reading and writing data",
+    "Condition scripts in transactions allow for complex business logic",
+    "Batch reads are not atomic but more efficient than individual reads"
+  ]
+}

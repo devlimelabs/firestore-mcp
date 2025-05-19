@@ -33,7 +33,7 @@ export function registerReadTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error listing collections: ${error.message}`
+            text: `Error listing collections: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }
@@ -73,7 +73,7 @@ export function registerReadTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error getting collection ${collectionId}: ${error.message}`
+            text: `Error getting collection ${collectionId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }
@@ -124,7 +124,7 @@ export function registerReadTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error getting document ${collectionId}/${documentId}: ${error.message}`
+            text: `Error getting document ${collectionId}/${documentId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }

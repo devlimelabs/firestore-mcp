@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Development MCP Server with hot reload
+  mcp-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - FIRESTORE_PROJECT_ID=${FIRESTORE_PROJECT_ID:-test-project}
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+    volumes:
+      - ./src:/app/src:ro
+      - ./permissions.json:/app/permissions.json:ro
+    depends_on:
+      - firestore-emulator
+    command: ["npm", "run", "dev"]
+
+  # Firestore Emulator
+  firestore-emulator:
+    image: google/cloud-sdk:latest
+    ports:
+      - "8080:8080"
+      - "4000:4000"  # Emulator UI
+    environment:
+      - FIRESTORE_PROJECT_ID=test-project
+    command: >
+      sh -c "
+        gcloud components install cloud-firestore-emulator beta &&
+        gcloud beta emulators firestore start
+          --host-port=0.0.0.0:8080
+          --project=test-project
+      "
+    volumes:
+      - firestore-data:/data
+
+  # Test runner
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=test
+      - FIRESTORE_PROJECT_ID=test-project
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+    volumes:
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
+    depends_on:
+      - firestore-emulator
+    command: ["npm", "test"]
+    profiles:
+      - test
+
+volumes:
+  firestore-data:

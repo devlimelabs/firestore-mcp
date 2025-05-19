@@ -1,0 +1,127 @@
+{
+  "description": "Example of using Firestore MCP with subcollections",
+  "comments": [
+    "This example demonstrates how to work with subcollections in Firestore.",
+    "We'll use a structure like: users/{userId}/orders/{orderId}/items/{itemId}"
+  ],
+  "examples": [
+    {
+      "name": "Create a user document",
+      "tool": "firestore-create-document",
+      "params": {
+        "collectionId": "users",
+        "documentId": "user123",
+        "data": {
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "created": "2023-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "Create an order for a user (subcollection)",
+      "tool": "firestore-create-document-by-path",
+      "params": {
+        "collectionPath": "users/user123/orders",
+        "documentId": "order456",
+        "data": {
+          "orderDate": "2023-06-15T10:30:00Z",
+          "total": 99.99,
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "name": "Add items to an order (nested subcollection)",
+      "tool": "firestore-create-document-by-path",
+      "params": {
+        "collectionPath": "users/user123/orders/order456/items",
+        "data": {
+          "productId": "prod789",
+          "quantity": 2,
+          "price": 49.99
+        }
+      }
+    },
+    {
+      "name": "List all orders for a user",
+      "tool": "firestore-get-collection-by-path",
+      "params": {
+        "collectionPath": "users/user123/orders"
+      }
+    },
+    {
+      "name": "Get a specific order",
+      "tool": "firestore-get-document-by-path",
+      "params": {
+        "documentPath": "users/user123/orders/order456"
+      }
+    },
+    {
+      "name": "List all items in an order",
+      "tool": "firestore-get-collection-by-path",
+      "params": {
+        "collectionPath": "users/user123/orders/order456/items"
+      }
+    },
+    {
+      "name": "Query orders by status across all users",
+      "tool": "firestore-query-collection-by-path",
+      "params": {
+        "collectionPath": "users/user123/orders",
+        "filters": [
+          {
+            "field": "status",
+            "operator": "==",
+            "value": "pending"
+          }
+        ],
+        "orderBy": {
+          "field": "orderDate",
+          "direction": "desc"
+        },
+        "limit": 10
+      }
+    },
+    {
+      "name": "Update an order status",
+      "tool": "firestore-update-document-by-path",
+      "params": {
+        "documentPath": "users/user123/orders/order456",
+        "data": {
+          "status": "shipped",
+          "shippedDate": "2023-06-16T14:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "Delete an item from an order",
+      "tool": "firestore-delete-document-by-path",
+      "params": {
+        "documentPath": "users/user123/orders/order456/items/item789"
+      }
+    },
+    {
+      "name": "List subcollections of a document",
+      "tool": "firestore-list-subcollections",
+      "params": {
+        "documentPath": "users/user123"
+      },
+      "expectedResult": ["orders", "preferences", "notifications"]
+    }
+  ],
+  "resources": [
+    {
+      "name": "Access user document resource",
+      "uri": "firestore://path/users/user123"
+    },
+    {
+      "name": "Access orders collection resource",
+      "uri": "firestore://path/users/user123/orders"
+    },
+    {
+      "name": "Access specific order resource",
+      "uri": "firestore://path/users/user123/orders/order456"
+    }
+  ]
+}

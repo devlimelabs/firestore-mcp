@@ -3,6 +3,7 @@ import { FirestoreClient } from "../firestore/client.js";
 import { PermissionManager } from "../permissions/manager.js";
 import { registerCollectionResources } from "./collection.js";
 import { registerDocumentResources } from "./document.js";
+import { registerSubcollectionResources } from "./subcollections.js";
 
 export function registerResources(
   server: McpServer,
@@ -31,7 +32,7 @@ export function registerResources(
         };
       } catch (error) {
         console.error("Error listing collections:", error);
-        throw new Error(`Failed to list collections: ${error.message}`);
+        throw new Error(`Failed to list collections: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   );
@@ -39,4 +40,5 @@ export function registerResources(
   // Register collection and document resources
   registerCollectionResources(server, firestoreClient, permissionManager);
   registerDocumentResources(server, firestoreClient, permissionManager);
+  registerSubcollectionResources(server, firestoreClient, permissionManager);
 }

@@ -11,19 +11,16 @@ export function registerDocumentResources(
   server.resource(
     "document",
     new ResourceTemplate("firestore://collection/{collectionId}/document/{documentId}", {
-      list: {
-        resourceNameHint: "Documents",
-        description: "Firestore documents"
-      }
+      list: undefined
     }),
     async (uri, { collectionId, documentId }) => {
       // Check permissions
-      if (!permissionManager.hasPermission(collectionId, 'read')) {
+      if (!permissionManager.hasPermission(collectionId as string, 'read')) {
         throw new Error(`Access denied to document: ${collectionId}/${documentId}`);
       }
       
       try {
-        const document = await firestoreClient.getDocument(collectionId, documentId);
+        const document = await firestoreClient.getDocument(collectionId as string, documentId as string);
         
         if (!document) {
           throw new Error(`Document ${documentId} not found in collection ${collectionId}`);
@@ -38,7 +35,7 @@ export function registerDocumentResources(
         };
       } catch (error) {
         console.error(`Error reading document ${collectionId}/${documentId}:`, error);
-        throw new Error(`Failed to read document ${collectionId}/${documentId}: ${error.message}`);
+        throw new Error(`Failed to read document ${collectionId}/${documentId}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   );

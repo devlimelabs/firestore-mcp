@@ -10,7 +10,7 @@ export function loadPermissionConfig(configPath: string): PermissionConfig {
     const configData = fs.readFileSync(configPath, "utf8");
     return JSON.parse(configData) as PermissionConfig;
   } catch (error) {
-    throw new Error(`Failed to load permission config: ${error.message}`);
+    throw new Error(`Failed to load permission config: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

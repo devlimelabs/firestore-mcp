@@ -74,7 +74,7 @@ async function main() {
       try {
         permissionConfig = loadPermissionConfig(options.configPath);
       } catch (error) {
-        console.error(error.message);
+        console.error(error instanceof Error ? error.message : String(error));
         process.exit(1);
       }
     } else {

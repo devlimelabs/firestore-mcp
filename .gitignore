@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage/
+*.pem
+*.key
+*.crt
+service-account.json
+credentials/
+permissions.json
+!permissions.example.json

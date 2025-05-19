@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # MCP Firestore Server
+  mcp-firestore:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - FIRESTORE_PROJECT_ID=${FIRESTORE_PROJECT_ID}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/service-account.json
+      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8080
+    volumes:
+      - ./credentials:/app/credentials:ro
+      - ./permissions.json:/app/permissions.json:ro
+    depends_on:
+      - firestore-emulator
+    command: ["node", "dist/index.js", "--config", "/app/permissions.json"]
+
+  # Firestore Emulator for local development
+  firestore-emulator:
+    image: google/cloud-sdk:latest
+    ports:
+      - "8080:8080"
+      - "4000:4000"  # UI port
+    environment:
+      - FIRESTORE_PROJECT_ID=${FIRESTORE_PROJECT_ID:-test-project}
+      - GCP_PROJECT=${FIRESTORE_PROJECT_ID:-test-project}
+    command: >
+      sh -c "
+        gcloud components install cloud-firestore-emulator beta &&
+        gcloud beta emulators firestore start
+          --host-port=0.0.0.0:8080
+          --project=${FIRESTORE_PROJECT_ID:-test-project}
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  # Optional: Firebase UI for emulator
+  firebase-ui:
+    image: node:20-alpine
+    ports:
+      - "4001:4000"
+    environment:
+      - FIREBASE_PROJECT_ID=${FIRESTORE_PROJECT_ID:-test-project}
+    volumes:
+      - ./firebase.json:/app/firebase.json:ro
+      - ./.firebaserc:/app/.firebaserc:ro
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install -g firebase-tools &&
+        firebase emulators:ui --host 0.0.0.0
+      "
+    depends_on:
+      - firestore-emulator
+
+volumes:
+  firestore-data:

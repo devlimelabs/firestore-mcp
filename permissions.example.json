@@ -1,0 +1,31 @@
+{
+  "collections": [
+    {
+      "collectionId": "users",
+      "operations": ["read", "write", "query"],
+      "description": "User profiles - full access"
+    },
+    {
+      "collectionId": "posts",
+      "operations": ["read", "query"],
+      "description": "Blog posts - read only access"
+    },
+    {
+      "collectionId": "comments",
+      "operations": ["read", "write", "query"],
+      "description": "Post comments - full access"
+    },
+    {
+      "collectionId": "analytics",
+      "operations": ["read"],
+      "description": "Analytics data - read only"
+    },
+    {
+      "collectionId": "admin",
+      "operations": [],
+      "description": "Admin collection - no access"
+    }
+  ],
+  "defaultAllow": false,
+  "description": "Example permission configuration for Firestore MCP"
+}

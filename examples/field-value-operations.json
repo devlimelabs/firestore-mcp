@@ -1,0 +1,126 @@
+{
+  "description": "Examples of field value operations in Firestore MCP",
+  "examples": [
+    {
+      "name": "Increment a counter field",
+      "tool": "firestore-increment-field",
+      "params": {
+        "documentPath": "stats/website",
+        "field": "visitCount",
+        "incrementBy": 1
+      }
+    },
+    {
+      "name": "Decrement inventory count",
+      "tool": "firestore-increment-field",
+      "params": {
+        "documentPath": "products/widget1",
+        "field": "stock",
+        "incrementBy": -5
+      }
+    },
+    {
+      "name": "Add tags to a document",
+      "tool": "firestore-array-union",
+      "params": {
+        "documentPath": "articles/article123",
+        "field": "tags",
+        "elements": ["technology", "ai", "firestore"]
+      }
+    },
+    {
+      "name": "Remove tags from a document",
+      "tool": "firestore-array-remove",
+      "params": {
+        "documentPath": "articles/article123",
+        "field": "tags",
+        "elements": ["outdated", "draft"]
+      }
+    },
+    {
+      "name": "Set server timestamps",
+      "tool": "firestore-server-timestamp",
+      "params": {
+        "documentPath": "users/user123",
+        "fields": ["lastLogin", "modifiedAt"]
+      }
+    },
+    {
+      "name": "Delete specific fields",
+      "tool": "firestore-delete-field",
+      "params": {
+        "documentPath": "users/user123",
+        "fields": ["tempToken", "legacyField"]
+      }
+    },
+    {
+      "name": "Batch field value operations",
+      "tool": "firestore-field-value-batch",
+      "params": {
+        "operations": [
+          {
+            "type": "increment",
+            "documentPath": "stats/daily/2023-06-15",
+            "field": "pageViews",
+            "incrementBy": 1
+          },
+          {
+            "type": "increment",
+            "documentPath": "stats/monthly/2023-06",
+            "field": "totalViews",
+            "incrementBy": 1
+          },
+          {
+            "type": "arrayUnion",
+            "documentPath": "users/user123",
+            "field": "viewedPages",
+            "elements": ["homepage", "products"]
+          },
+          {
+            "type": "serverTimestamp",
+            "documentPath": "users/user123",
+            "fields": ["lastActivity"]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Complex user activity update",
+      "tool": "firestore-field-value-batch",
+      "params": {
+        "operations": [
+          {
+            "type": "increment",
+            "documentPath": "users/user123/stats",
+            "field": "loginCount",
+            "incrementBy": 1
+          },
+          {
+            "type": "serverTimestamp",
+            "documentPath": "users/user123",
+            "fields": ["lastLogin", "modifiedAt"]
+          },
+          {
+            "type": "arrayUnion",
+            "documentPath": "users/user123",
+            "field": "devices",
+            "elements": ["iPhone12"]
+          },
+          {
+            "type": "deleteField",
+            "documentPath": "users/user123",
+            "fields": ["sessionToken"]
+          }
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "Field value operations are atomic and can be used in transactions",
+    "Increment can be used with negative values to decrement",
+    "Array union adds elements without duplicates",
+    "Server timestamps ensure consistent time across all clients",
+    "Field deletion removes the field entirely from the document",
+    "Batch operations allow multiple field updates in a single atomic operation"
+  ]
+}

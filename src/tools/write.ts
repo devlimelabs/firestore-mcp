@@ -43,7 +43,7 @@ export function registerWriteTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error creating document in ${collectionId}: ${error.message}`
+            text: `Error creating document in ${collectionId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }
@@ -85,7 +85,7 @@ export function registerWriteTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error updating document ${collectionId}/${documentId}: ${error.message}`
+            text: `Error updating document ${collectionId}/${documentId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }

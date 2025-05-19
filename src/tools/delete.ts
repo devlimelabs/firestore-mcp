@@ -42,7 +42,7 @@ export function registerDeleteTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error deleting document ${collectionId}/${documentId}: ${error.message}`
+            text: `Error deleting document ${collectionId}/${documentId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }

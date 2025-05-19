@@ -18,7 +18,7 @@ export function registerQueryTools(
         field: z.string().describe("Field path to filter on"),
         operator: z.enum(["==", "!=", ">", ">=", "<", "<=", "array-contains", "in", "array-contains-any", "not-in"])
           .describe("Operator for comparison"),
-        value: z.any().describe("Value to compare against")
+        value: z.any().optional().describe("Value to compare against")
       })).describe("Array of filter conditions"),
       limit: z.number().optional().describe("Maximum number of results to return"),
       orderBy: z.object({
@@ -57,7 +57,7 @@ export function registerQueryTools(
           isError: true,
           content: [{
             type: "text",
-            text: `Error querying collection ${collectionId}: ${error.message}`
+            text: `Error querying collection ${collectionId}: ${error instanceof Error ? error.message : String(error)}`
           }]
         };
       }
